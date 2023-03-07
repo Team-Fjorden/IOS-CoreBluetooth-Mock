@@ -850,6 +850,12 @@ open class CBMCentralManagerMock: CBMCentralManager {
             }
             // Create a local copy.
             .map { CBMPeripheralMock(basedOn: $0, by: self) }
+
+		// Add those copies to the local manager, this matches our BLE behavior
+		peripheralsConnectedByOtherApps.forEach {
+			peripherals[$0.identifier] = $0
+		}
+
         return peripheralsConnectedByThisManager
              + peripheralsConnectedByOtherManagers
              + peripheralsConnectedByOtherApps
