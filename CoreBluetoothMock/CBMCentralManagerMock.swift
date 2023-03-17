@@ -724,13 +724,24 @@ open class CBMCentralManagerMock: CBMCentralManager {
         }
         // Connection is pending.
         mock.state = .connecting
-        // If the device is already connected, there is no need to waiting for
-        // advertising packet.
-        if mock.isAlreadyConnected {
-            mock.connect() { _ in
-                 self.delegate?.centralManager(self, didConnect: mock)
-            }
-        }
+        // // If the device is already connected, there is no need to waiting for
+        // // advertising packet.
+        // if mock.isAlreadyConnected {
+        //     mock.connect() { _ in
+        //          self.delegate?.centralManager(self, didConnect: mock)
+        //     }
+        // }
+        // This fixes our use case, but not certain it is the correct way
+		// See https://github.com/NordicSemiconductor/IOS-CoreBluetooth-Mock/issues/92 for details
+		mock.connect() { result in
+			switch result {
+			case .success:
+				self.delegate?.centralManager(self, didConnect: mock)
+			case .failure(let error):
+				self.delegate?.centralManager(self, didFailToConnect: mock,
+											  error: error)
+			}
+		}
     }
     
     open override func cancelPeripheralConnection(_ peripheral: CBMPeripheral) {
